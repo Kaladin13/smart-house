@@ -9,24 +9,27 @@ import org.redisson.Redisson
 import org.redisson.config.Config
 import java.util.concurrent.Executors
 
-const val PUBLISH_CHANNEL = "publish_topic"
+const val PUBLISH_QUEUE = "publish_queue"
+const val CONSUME_QUEUE = "publish_queue"
 const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_POLLERS = 3
+const val K_PUBLISHERS = 3
 const val K_CONSUMERS = 5
 const val BATCH_SIZE = 256
 
-fun main(args: Array<String>) {
+fun main() {
 
     // Maximize CPU utilization: Sharding + WorkStealing + Minimum context switches
-    val kWorkers = Runtime.getRuntime().availableProcessors();
+    val kWorkers = Runtime.getRuntime().availableProcessors()
     val dispatcher = Executors.newWorkStealingPool(kWorkers).asCoroutineDispatcher()
     val scope = CoroutineScope(dispatcher)
 
     // Single Producer Multiple Consumer pattern for EACH channel
+    // TODO: better communication
     val commutation = List(K_POLLERS) { Channel<String>(capacity = Channel.UNLIMITED) }
 
     // Redis
-    val config: Config = Config()
+    val config = Config()
     config.useSingleServer().setAddress(REDIS_URL)
     val client = Redisson.create(config)
 
@@ -36,16 +39,26 @@ fun main(args: Array<String>) {
     // Polling
     val pollJobs = commutation.mapIndexed { _, channel ->
         scope.launch {
-            val poller = Poller(client, channel)
+            val poller = Poller(client.getQueue<String>(CONSUME_QUEUE), channel)
             poller.startPoll()
         }
     }
+
+    // TODO: deploy houses
 
     // Processing
     val consumerJobs = List(K_CONSUMERS) {
         scope.launch {
             val consumer = Consumer(commutation, houseRegistry)
             consumer.startConsume()
+        }
+    }
+
+    // Publishing
+    val publishJobs = List(K_PUBLISHERS) {
+        scope.launch {
+            val publisher = Publisher(client.getQueue<String>(PUBLISH_QUEUE), houseRegistry)
+            publisher.startPublish()
         }
     }
 
@@ -60,12 +73,3 @@ fun main(args: Array<String>) {
         client.shutdown()
     })
 }
-
-private fun processBatch(messages: List<String>) {
-    if (messages.isEmpty()) {
-        return
-    }
-    // Process the batch of messages
-    println("Received batch of messages: $messages")
-}
-
