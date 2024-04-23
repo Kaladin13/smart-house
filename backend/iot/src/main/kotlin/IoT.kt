@@ -1,22 +1,20 @@
 package org.bakalover.iot
 
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.selects.onTimeout
-import kotlinx.coroutines.selects.select
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.redisson.Redisson
 import org.redisson.config.Config
 import java.util.concurrent.Executors
 
-const val CONSUME_CHANNEL = "consume_topic"
 const val PUBLISH_CHANNEL = "publish_topic"
 const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_POLLERS = 3
 const val K_CONSUMERS = 5
 const val BATCH_SIZE = 256
-const val TIMEOUT = 5L // in milliseconds
 
-@OptIn(ExperimentalCoroutinesApi::class)
 fun main(args: Array<String>) {
 
     // Maximize CPU utilization: Sharding + WorkStealing + Minimum context switches
@@ -32,35 +30,22 @@ fun main(args: Array<String>) {
     config.useSingleServer().setAddress(REDIS_URL)
     val client = Redisson.create(config)
 
-    val pollJobs = commutation.mapIndexed{ _, channel ->
+
+    val houseRegistry = HouseRegistry()
+
+    // Polling
+    val pollJobs = commutation.mapIndexed { _, channel ->
         scope.launch {
-            val tasks = client.getQueue<String>(CONSUME_CHANNEL).poll(BATCH_SIZE)
-            tasks.forEach{ task->
-                channel.send(task)
-            }
+            val poller = Poller(client, channel)
+            poller.startPoll()
         }
     }
 
+    // Processing
     val consumerJobs = List(K_CONSUMERS) {
         scope.launch {
-            val taskBatch = mutableListOf<String>()
-            while (true) {
-                select {
-                    commutation.forEachIndexed { _, channel ->
-                        channel.onReceive { task ->
-                            taskBatch.add(task)
-                            if (taskBatch.size >= BATCH_SIZE) {
-                                processBatch(taskBatch)
-                                taskBatch.clear()
-                            }
-                        }
-                    }
-                    onTimeout(TIMEOUT) { // All channels are starving
-                        processBatch(taskBatch)
-                        taskBatch.clear()
-                    }
-                }
-            }
+            val consumer = Consumer(commutation, houseRegistry)
+            consumer.startConsume()
         }
     }
 
@@ -77,7 +62,7 @@ fun main(args: Array<String>) {
 }
 
 private fun processBatch(messages: List<String>) {
-    if(messages.isEmpty()){
+    if (messages.isEmpty()) {
         return
     }
     // Process the batch of messages
