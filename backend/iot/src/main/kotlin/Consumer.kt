@@ -35,7 +35,7 @@ class Consumer(
     private suspend fun processBatch(batch: List<String>) {
         // Get id
         // Send update to switch using house id
-        val retrievedId = 0
+        val retrievedId = 0 // What if we have wrong request id ????
         sendRequestsTo.getChannelById(retrievedId).send("Some command to smart house")
     }
 }

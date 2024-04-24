@@ -49,6 +49,8 @@ fun main() {
         }
     }
 
+    (0..<K_HOUSES).forEach { id -> houseRegistry.deployNewHouse(id, scope) }
+
 
     // Publishing
     val publishJobs = List(K_PUBLISHERS) {
