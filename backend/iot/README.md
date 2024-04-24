@@ -6,6 +6,7 @@
   проталкивают" дальше по нему, "что остаётся".
 + Таким образом весь сервис выступает одним большим Pipe-ом между двумя Redis очередями.
 + Каждый слой общается с соседними при помощи Switch-ей, по сути представлящих обёртку над `List<Channel<T>>`
-+ Каждый канал внутри Switch-а используется патерном доступа "Single Producer Multiple Consumer" в случае балансировки
++ Каждый канал внутри Switch-а используется совместно с патернами доступа "Single Producer Multiple Consumer" в случае
+  балансировки
   и "Single Producer Single Consumer", в случае необходимости доставки сообщения определённому адресату (дому)
   ![Picture](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/iot-diag.svg)
