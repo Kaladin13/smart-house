@@ -30,11 +30,11 @@ fun main() {
     val client = Redisson.create(config)
 
 
-    val houseRegistry = HouseRegistry()
-
     val pollConsumeSwitch = Switch<String>(K_POLLERS)
     val consumeHouseSwitch = Switch<String>(K_HOUSES)
     val housePublishSwitch = Switch<String>(K_HOUSES)
+
+    val houseRegistry = HouseRegistry(consumeHouseSwitch, housePublishSwitch)
 
     // Polling
     val pollJobs = List(K_POLLERS) { id ->

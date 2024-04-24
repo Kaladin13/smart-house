@@ -2,9 +2,10 @@ package org.bakalover.iot.things
 
 import kotlinx.coroutines.channels.Channel
 
-class House {
-    private val receiveChannel = Channel<String>()
-    private val sendChannel = Channel<String>()
+class House(
+    private val receiveChannel: Channel<String>,
+    private val sendChannel: Channel<String>
+) {
 
     suspend fun run() {
         // House Lifecycle

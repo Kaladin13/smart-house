@@ -5,11 +5,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.bakalover.iot.things.House
 
-class HouseRegistry {
+class HouseRegistry(
+    private val receiveRequestsFrom: Switch<String>,
+    private val sendUpdatesTo: Switch<String>
+) {
     private var registry: Map<Int, House> = mutableMapOf()
 
     fun deployNewHouse(id: Int, scope: CoroutineScope) {
-        val house = House()
+        val house = House(receiveRequestsFrom.getChannelById(id), sendUpdatesTo.getChannelById(id))
         registry.plus(Pair(id, house))
         scope.launch {
             house.run()
