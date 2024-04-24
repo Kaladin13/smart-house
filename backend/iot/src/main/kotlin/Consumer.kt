@@ -32,8 +32,10 @@ class Consumer(
         }
     }
 
-    private fun processBatch(batch: List<String>) {
+    private suspend fun processBatch(batch: List<String>) {
         // Get id
         // Send update to switch using house id
+        val retrievedId = 0
+        sendRequestsTo.getChannelById(retrievedId).send("Some command to smart house")
     }
 }
