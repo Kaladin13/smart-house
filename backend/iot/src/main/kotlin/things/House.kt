@@ -8,16 +8,18 @@ class House(
 ) {
 
     suspend fun run() {
-        // House Lifecycle
-        // getting updates from send receiveChannel
-        // and post updated to sendChannel
+        while (true) {
+            processRequest()
+            sendUpdate()
+        }
     }
 
-    fun getSendChannel(): Channel<String> {
-        return sendChannel
+    private suspend fun processRequest() {
+        val commandFromUser = receiveChannel.receive()
+        // Do smth with command
     }
 
-    fun getReceiveChannel(): Channel<String> {
-        return receiveChannel
+    private suspend fun sendUpdate() {
+        sendChannel.send("Something")
     }
 }
