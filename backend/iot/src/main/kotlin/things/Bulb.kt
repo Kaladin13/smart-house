@@ -1,4 +1,4 @@
 package org.bakalover.iot.things
 
-class Bulb {
+class Bulb(private var switch: Boolean) {
 }

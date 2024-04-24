@@ -1,9 +1,6 @@
 package org.bakalover.iot
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import org.redisson.Redisson
 import org.redisson.config.Config
 import java.util.concurrent.Executors
@@ -14,7 +11,7 @@ const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_POLLERS = 3
 const val K_PUBLISHERS = 3
 const val K_CONSUMERS = 5
-const val K_HOUSES = 1000
+const val K_HOUSES = 10000
 const val BATCH_SIZE = 256
 
 fun main() {
@@ -39,7 +36,7 @@ fun main() {
     // Polling
     val pollJobs = List(K_POLLERS) { id ->
         scope.launch {
-            val poller = Poller(id, client.getQueue<String>(CONSUME_QUEUE), pollConsumeSwitch)
+            val poller = Poller(id, client.getQueue(CONSUME_QUEUE), pollConsumeSwitch)
             poller.startPoll()
         }
     }
@@ -52,25 +49,24 @@ fun main() {
         }
     }
 
-    // TODO: deploy houses
 
     // Publishing
     val publishJobs = List(K_PUBLISHERS) {
         scope.launch {
-            val publisher = Publisher(client.getQueue<String>(PUBLISH_QUEUE), housePublishSwitch)
+            val publisher = Publisher(client.getQueue(PUBLISH_QUEUE), housePublishSwitch)
             publisher.startPublish()
         }
     }
 
-    runBlocking {
-        pollJobs.forEach { it.join() }
-        consumerJobs.forEach { it.join() }
-        publishJobs.forEach { it.join() }
-    }
 
-
-    // Graceful redis client shutdown
+    // Graceful cancellation and shutdown for all coroutines
     Runtime.getRuntime().addShutdownHook(Thread {
+        runBlocking { // Blocking is ok
+            pollJobs.forEach { it.cancelAndJoin() }
+            consumerJobs.forEach { it.cancelAndJoin() }
+            houseRegistry.cancelAndJoin()
+            publishJobs.forEach { it.cancelAndJoin() }
+        }
         client.shutdown()
     })
 }

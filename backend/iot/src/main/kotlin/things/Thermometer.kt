@@ -1,6 +1,6 @@
 package org.bakalover.iot.things
 
-class Thermometer {
+class Thermometer(private var t: Int) {
 }
 
 
