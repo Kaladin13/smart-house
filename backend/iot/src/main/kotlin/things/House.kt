@@ -3,7 +3,7 @@ package org.bakalover.iot.things
 import kotlinx.coroutines.channels.Channel
 
 class House {
-    private val recieveChannel = Channel<String>()
+    private val receiveChannel = Channel<String>()
     private val sendChannel = Channel<String>()
 
     suspend fun run() {
@@ -17,6 +17,6 @@ class House {
     }
 
     fun getReceiveChannel(): Channel<String> {
-        return recieveChannel
+        return receiveChannel
     }
 }
