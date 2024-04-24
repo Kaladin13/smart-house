@@ -1,17 +1,18 @@
 package org.bakalover.iot
 
-import kotlinx.coroutines.channels.Channel
 import org.redisson.api.RQueue
 
 class Poller(
+    private val id: Int,
     private val pollFrom: RQueue<String>,
-    private val sendTo: Channel<String>,
+    private val sendTo: Switch<String>,
 ) {
     suspend fun startPoll() {
+        val chan = sendTo.getChannelById(id)
         while (true) {
             val tasks = pollFrom.poll(BATCH_SIZE)
             tasks.forEach { task ->
-                sendTo.send(task)
+                chan.send(task)
             }
         }
     }

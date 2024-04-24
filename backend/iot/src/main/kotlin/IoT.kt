@@ -2,7 +2,6 @@ package org.bakalover.iot
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.redisson.Redisson
@@ -15,6 +14,7 @@ const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_POLLERS = 3
 const val K_PUBLISHERS = 3
 const val K_CONSUMERS = 5
+const val K_HOUSES = 1000
 const val BATCH_SIZE = 256
 
 fun main() {
@@ -24,10 +24,6 @@ fun main() {
     val dispatcher = Executors.newWorkStealingPool(kWorkers).asCoroutineDispatcher()
     val scope = CoroutineScope(dispatcher)
 
-    // Single Producer Multiple Consumer pattern for EACH channel
-    // TODO: better communication
-    val commutation = List(K_POLLERS) { Channel<String>(capacity = Channel.UNLIMITED) }
-
     // Redis
     val config = Config()
     config.useSingleServer().setAddress(REDIS_URL)
@@ -36,28 +32,32 @@ fun main() {
 
     val houseRegistry = HouseRegistry()
 
+    val pollConsumeSwitch = Switch<String>(K_POLLERS)
+    val consumeHouseSwitch = Switch<String>(K_HOUSES)
+    val housePublishSwitch = Switch<String>(K_HOUSES)
+
     // Polling
-    val pollJobs = commutation.mapIndexed { _, channel ->
+    val pollJobs = List(K_POLLERS) { id ->
         scope.launch {
-            val poller = Poller(client.getQueue<String>(CONSUME_QUEUE), channel)
+            val poller = Poller(id, client.getQueue<String>(CONSUME_QUEUE), pollConsumeSwitch)
             poller.startPoll()
+        }
+    }
+
+    // Processing
+    val consumerJobs = List(K_CONSUMERS) { _ ->
+        scope.launch {
+            val consumer = Consumer(pollConsumeSwitch, consumeHouseSwitch)
+            consumer.startConsume()
         }
     }
 
     // TODO: deploy houses
 
-    // Processing
-    val consumerJobs = List(K_CONSUMERS) {
-        scope.launch {
-            val consumer = Consumer(commutation, houseRegistry)
-            consumer.startConsume()
-        }
-    }
-
     // Publishing
     val publishJobs = List(K_PUBLISHERS) {
         scope.launch {
-            val publisher = Publisher(client.getQueue<String>(PUBLISH_QUEUE), houseRegistry)
+            val publisher = Publisher(client.getQueue<String>(PUBLISH_QUEUE), housePublishSwitch)
             publisher.startPublish()
         }
     }
@@ -65,6 +65,7 @@ fun main() {
     runBlocking {
         pollJobs.forEach { it.join() }
         consumerJobs.forEach { it.join() }
+        publishJobs.forEach { it.join() }
     }
 
 

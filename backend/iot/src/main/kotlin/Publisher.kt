@@ -7,14 +7,14 @@ import org.redisson.api.RQueue
 
 class Publisher(
     private val publishTo: RQueue<String>,
-    private val updatesFrom: HouseRegistry,
+    private val updatesFrom: Switch<String>,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun startPublish() {
         val taskBatch = mutableListOf<String>()
         while (true) {
-            select { // Circular walkthrough
-                updatesFrom.getReceiveCommunication().forEachIndexed { _, channel ->
+            select { // Try to receive from all houses
+                updatesFrom.getAllChannels().forEachIndexed { _, channel ->
                     channel.onReceive { task ->
                         taskBatch.add(task)
                         if (taskBatch.size >= BATCH_SIZE) {
@@ -24,7 +24,7 @@ class Publisher(
                     }
                 }
                 onTimeout(TIMEOUT) { // All channels are starving
-                    publishBatch(taskBatch)
+                    publishBatch(taskBatch) // Publish what we have at the moment
                     taskBatch.clear()
                 }
             }
