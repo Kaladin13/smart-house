@@ -6,26 +6,30 @@ import org.redisson.config.Config
 import java.util.concurrent.Executors
 
 const val PUBLISH_QUEUE = "publish_queue"
-const val CONSUME_QUEUE = "publish_queue"
+const val CONSUME_QUEUE = "consume_queue"
 const val REDIS_URL = "redis://127.0.0.1:6379"
+
+//Minimum context switches
 const val K_POLLERS = 3
+const val K_CONSUMERS = 3
 const val K_PUBLISHERS = 3
-const val K_CONSUMERS = 5
-const val K_HOUSES = 10000
+const val K_HOUSES = 1500
 const val BATCH_SIZE = 256
+const val TIMEOUT = 30L // in milliseconds
 
 fun main() {
 
-    // Maximize CPU utilization: Sharding + WorkStealing + Minimum context switches
+
+    // Maximize CPU utilization: Sharding + WorkStealing
     val kWorkers = Runtime.getRuntime().availableProcessors()
     val dispatcher = Executors.newWorkStealingPool(kWorkers).asCoroutineDispatcher()
     val scope = CoroutineScope(dispatcher)
+
 
     // Redis
     val config = Config()
     config.useSingleServer().setAddress(REDIS_URL)
     val client = Redisson.create(config)
-
 
     val pollConsumeSwitch = Switch<String>(K_POLLERS)
     val consumeHouseSwitch = Switch<String>(K_HOUSES)
@@ -52,7 +56,7 @@ fun main() {
     (0..<K_HOUSES).forEach { id -> houseRegistry.deployNewHouse(id, scope) }
 
 
-    // Publishing
+//     Publishing
     val publishJobs = List(K_PUBLISHERS) {
         scope.launch {
             val publisher = Publisher(client.getQueue(PUBLISH_QUEUE), housePublishSwitch)

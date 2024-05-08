@@ -28,4 +28,5 @@ class HouseRegistry(
     fun checkHouseById(id: Int): Boolean {
         return registry.contains(id)
     }
+
 }

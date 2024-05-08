@@ -4,7 +4,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 
-const val TIMEOUT = 5L // in milliseconds
 
 class Consumer(
     private val consumeFrom: Switch<String>,
@@ -14,11 +13,11 @@ class Consumer(
     suspend fun startConsume() {
         val taskBatch = mutableListOf<String>()
         while (true) {
-            select { // Try to receive from all
+            select { // Try receiving from all
                 consumeFrom.getAllChannels().forEachIndexed { _, channel ->
                     channel.onReceive { task ->
                         taskBatch.add(task)
-                        if (taskBatch.size >= BATCH_SIZE) {
+                        if (taskBatch.size >= ((BATCH_SIZE * K_POLLERS) / K_CONSUMERS)) { // Balance batch
                             processBatch(taskBatch)
                             taskBatch.clear()
                         }
@@ -33,9 +32,9 @@ class Consumer(
     }
 
     private suspend fun processBatch(batch: List<String>) {
-        // Get id
-        // Send update to switch using house id
-        val retrievedId = 0 // What if we have wrong request id ????
-        sendRequestsTo.getChannelById(retrievedId).send("Some command to smart house")
+        val batches = batch.groupBy { it }
+        batch.forEach { el ->
+            sendRequestsTo.getChannelById(el.toInt()).send(el)
+        }
     }
 }

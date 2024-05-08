@@ -23,7 +23,7 @@ class Publisher(
                         }
                     }
                 }
-                onTimeout(TIMEOUT) { // All channels are starving
+                onTimeout(TIMEOUT) {
                     publishBatch(taskBatch) // Publish what we have at the moment
                     taskBatch.clear()
                 }

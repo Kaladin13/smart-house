@@ -10,9 +10,11 @@ class Poller(
     suspend fun startPoll() {
         val chan = sendTo.getChannelById(id)
         while (true) {
-            val tasks = pollFrom.poll(BATCH_SIZE)
-            tasks.forEach { task ->
-                chan.send(task)
+            if (pollFrom.isNotEmpty()) {
+                val taskBatch = pollFrom.poll(BATCH_SIZE);
+                taskBatch.forEach { taskSubBatch ->
+                    chan.send(taskSubBatch)
+                }
             }
         }
     }
