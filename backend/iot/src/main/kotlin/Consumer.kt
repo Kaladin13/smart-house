@@ -3,15 +3,16 @@ package org.bakalover.iot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
+import org.bakalover.iot.message.Request
 
 
 class Consumer(
-    private val consumeFrom: Switch<String>,
-    private val sendRequestsTo: Switch<String>,
+    private val consumeFrom: Switch<Request>,
+    private val sendRequestsTo: Switch<Request>,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun startConsume() {
-        val taskBatch = mutableListOf<String>()
+        val taskBatch = mutableListOf<Request>()
         while (true) {
             select { // Try receiving from all
                 consumeFrom.getAllChannels().forEachIndexed { _, channel ->
@@ -31,10 +32,9 @@ class Consumer(
         }
     }
 
-    private suspend fun processBatch(batch: List<String>) {
-        val batches = batch.groupBy { it }
+    private suspend fun processBatch(batch: List<Request>) {
         batch.forEach { el ->
-            sendRequestsTo.getChannelById(el.toInt()).send(el)
+            sendRequestsTo.getChannelById(el.houseId).send(el)
         }
     }
 }

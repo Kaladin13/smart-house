@@ -1,10 +1,12 @@
 package org.bakalover.iot.things
 
 import kotlinx.coroutines.channels.Channel
+import org.bakalover.iot.message.Request
+import org.bakalover.iot.message.Response
 
 class House(
-    private val receiveChannel: Channel<String>,
-    private val sendChannel: Channel<String>,
+    private val receiveChannel: Channel<Request>,
+    private val sendChannel: Channel<Response>,
 ) {
 
     suspend fun run() {
@@ -19,6 +21,6 @@ class House(
     }
 
     private suspend fun sendUpdate() {
-        sendChannel.send("a")
+        sendChannel.send(Response(1, "hjjjjjjjjjjjjjjjjjjji"))
     }
 }

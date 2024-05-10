@@ -1,6 +1,8 @@
 package org.bakalover.iot
 
 import kotlinx.coroutines.*
+import org.bakalover.iot.message.Request
+import org.bakalover.iot.message.Response
 import org.redisson.Redisson
 import org.redisson.config.Config
 import java.util.concurrent.Executors
@@ -31,9 +33,9 @@ fun main() {
     config.useSingleServer().setAddress(REDIS_URL)
     val client = Redisson.create(config)
 
-    val pollConsumeSwitch = Switch<String>(K_POLLERS)
-    val consumeHouseSwitch = Switch<String>(K_HOUSES)
-    val housePublishSwitch = Switch<String>(K_HOUSES)
+    val pollConsumeSwitch = Switch<Request>(K_POLLERS)
+    val consumeHouseSwitch = Switch<Request>(K_HOUSES)
+    val housePublishSwitch = Switch<Response>(K_HOUSES)
 
     val houseRegistry = HouseRegistry(consumeHouseSwitch, housePublishSwitch)
 
@@ -45,7 +47,7 @@ fun main() {
         }
     }
 
-    // Processing
+    // Decoding + processing
     val consumerJobs = List(K_CONSUMERS) { _ ->
         scope.launch {
             val consumer = Consumer(pollConsumeSwitch, consumeHouseSwitch)

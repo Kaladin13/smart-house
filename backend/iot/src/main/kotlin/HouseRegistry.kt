@@ -4,11 +4,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
+import org.bakalover.iot.message.Request
+import org.bakalover.iot.message.Response
 import org.bakalover.iot.things.House
 
 class HouseRegistry(
-    private val receiveRequestsFrom: Switch<String>,
-    private val sendUpdatesTo: Switch<String>
+    private val receiveRequestsFrom: Switch<Request>,
+    private val sendUpdatesTo: Switch<Response>
 ) {
     private var registry: Map<Int, House> = mutableMapOf()
     private var jobs: List<Job> = mutableListOf()

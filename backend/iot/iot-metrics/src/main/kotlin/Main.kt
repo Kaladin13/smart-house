@@ -2,6 +2,8 @@ package org.bakalover.iot
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.redisson.Redisson
 import org.redisson.config.Config
 import kotlin.random.Random
@@ -11,7 +13,7 @@ const val CONSUME_QUEUE = "consume_queue"
 const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_HOUSES = 1500
 const val BATCH_SIZE = 256
-const val TASKS = 300000
+const val TASKS = 100000
 
 fun main(): Unit = runBlocking {
 
@@ -24,8 +26,8 @@ fun main(): Unit = runBlocking {
     launch {
         val queue = client.getQueue<String>(CONSUME_QUEUE)
         startTime = System.currentTimeMillis()
-        (0..TASKS).forEach { _ ->
-            queue.offer(Random.nextInt(0, K_HOUSES).toString())
+        (0..<TASKS).forEach { _ ->
+            queue.offer(Json.encodeToString(Request(Random.nextInt(K_HOUSES), "hi", "hjjjjjjjjjjjjjjjjjjji")))
         }
     }
 
@@ -41,7 +43,6 @@ fun main(): Unit = runBlocking {
                 if (count >= TASKS) {
                     break
                 }
-//                println(count)
             }
         }
         println("rps: ${count / ((System.currentTimeMillis() - startTime) / 1000)} requests")
