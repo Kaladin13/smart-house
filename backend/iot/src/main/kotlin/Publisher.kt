@@ -12,6 +12,8 @@ class Publisher(
     private val publishTo: RQueue<String>,
     private val updatesFrom: Switch<Response>,
 ) {
+    private val backoff = Backoff()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun startPublish() {
         val taskBatch = mutableListOf<Response>()
@@ -21,13 +23,14 @@ class Publisher(
                     channel.onReceive { task ->
                         taskBatch.add(task)
                         if (taskBatch.size >= BATCH_SIZE) {
+                            backoff.reset()
                             publishBatch(taskBatch)
                             taskBatch.clear()
                         }
                     }
                 }
-                onTimeout(TIMEOUT) {
-                    publishBatch(taskBatch) // Publish what we have at the moment
+                onTimeout(backoff.nextDelay()) {
+                    publishBatch(taskBatch)
                     taskBatch.clear()
                 }
             }

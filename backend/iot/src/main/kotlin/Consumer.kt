@@ -10,6 +10,9 @@ class Consumer(
     private val consumeFrom: Switch<Request>,
     private val sendRequestsTo: Switch<Request>,
 ) {
+
+    private val backoff = Backoff()
+
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun startConsume() {
         val taskBatch = mutableListOf<Request>()
@@ -19,12 +22,13 @@ class Consumer(
                     channel.onReceive { task ->
                         taskBatch.add(task)
                         if (taskBatch.size >= ((BATCH_SIZE * K_POLLERS) / K_CONSUMERS)) { // Balance batch
+                            backoff.reset()
                             processBatch(taskBatch)
                             taskBatch.clear()
                         }
                     }
                 }
-                onTimeout(TIMEOUT) { // All channels are starving
+                onTimeout(backoff.nextDelay()) { // All channels are starving
                     processBatch(taskBatch) // Flushing what we have at the moment
                     taskBatch.clear()
                 }

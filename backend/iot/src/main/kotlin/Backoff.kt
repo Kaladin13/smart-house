@@ -4,7 +4,7 @@ import kotlin.math.pow
 import kotlin.random.Random
 
 class Backoff(
-    private val initialDelay: Long = 1,
+    private val initialDelay: Long = 30,
     private val maxDelay: Long = 2000,
     private val randomizationFactor: Double = 0.5,
 ) {
