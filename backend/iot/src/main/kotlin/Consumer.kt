@@ -7,8 +7,8 @@ import org.bakalover.iot.message.Request
 
 
 class Consumer(
-    private val consumeFrom: Switch<Request>,
-    private val sendRequestsTo: Switch<Request>,
+    private val consumeFrom: ISwitch<Request>,
+    private val sendRequestsTo: ISwitch<Request>,
 ) {
 
     private val backoff = Backoff()
@@ -18,7 +18,7 @@ class Consumer(
         val taskBatch = mutableListOf<Request>()
         while (true) {
             select { // Try receiving from all
-                consumeFrom.getAllChannels().forEachIndexed { _, channel ->
+                consumeFrom.getAll().forEachIndexed { _, channel ->
                     channel.onReceive { task ->
                         taskBatch.add(task)
                         if (taskBatch.size >= ((BATCH_SIZE * K_POLLERS) / K_CONSUMERS)) { // Balance batch
@@ -38,7 +38,7 @@ class Consumer(
 
     private suspend fun processBatch(batch: List<Request>) {
         batch.forEach { el ->
-            sendRequestsTo.getChannelById(el.houseId).send(el)
+            sendRequestsTo.getChannel(el.houseId).send(el)
         }
     }
 }

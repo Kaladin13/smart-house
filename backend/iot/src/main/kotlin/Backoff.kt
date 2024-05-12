@@ -18,7 +18,6 @@ class Backoff(
     }
 
     fun nextDelay(): Long {
-
         currentRetry++
         val delay = (currentDelay * 2.0.pow(currentRetry - 1)).toLong()
         currentDelay = minOf(delay, maxDelay)

@@ -1,4 +1,4 @@
 package org.bakalover.iot.things
 
-interface Thing {
+interface IThing {
 }

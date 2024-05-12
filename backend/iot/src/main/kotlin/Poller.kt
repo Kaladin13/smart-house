@@ -8,12 +8,12 @@ import org.redisson.api.RQueue
 class Poller(
     private val id: Int,
     private val pollFrom: RQueue<String>,
-    private val sendTo: Switch<Request>,
+    private val sendTo: ISwitch<Request>,
 ) {
     private val backoff = Backoff()
 
     suspend fun startPoll() {
-        val chan = sendTo.getChannelById(id)
+        val chan = sendTo.getChannel(id)
         while (true) {
             if (pollFrom.isNotEmpty()) {
                 backoff.reset()

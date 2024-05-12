@@ -19,7 +19,7 @@ class Publisher(
         val taskBatch = mutableListOf<Response>()
         while (true) {
             select { // Try to receive from all houses
-                updatesFrom.getAllChannels().forEachIndexed { _, channel ->
+                updatesFrom.getAll().forEachIndexed { _, channel ->
                     channel.onReceive { task ->
                         taskBatch.add(task)
                         if (taskBatch.size >= BATCH_SIZE) {

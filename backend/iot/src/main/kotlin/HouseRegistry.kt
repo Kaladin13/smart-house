@@ -9,14 +9,14 @@ import org.bakalover.iot.message.Response
 import org.bakalover.iot.things.House
 
 class HouseRegistry(
-    private val receiveRequestsFrom: Switch<Request>,
-    private val sendUpdatesTo: Switch<Response>
+    private val receiveRequestsFrom: ISwitch<Request>,
+    private val sendUpdatesTo: ISwitch<Response>
 ) {
     private var registry: Map<Int, House> = mutableMapOf()
     private var jobs: List<Job> = mutableListOf()
 
     fun deployNewHouse(id: Int, scope: CoroutineScope) {
-        val house = House(receiveRequestsFrom.getChannelById(id), sendUpdatesTo.getChannelById(id))
+        val house = House(receiveRequestsFrom.getChannel(id), sendUpdatesTo.getChannel(id))
         registry.plus(Pair(id, house))
         jobs.plus(scope.launch {
             house.run()
