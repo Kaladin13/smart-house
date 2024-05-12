@@ -21,12 +21,10 @@ const val TIMEOUT = 30L // in milliseconds
 
 fun main() {
 
-
     // Maximize CPU utilization: Sharding + WorkStealing
     val kWorkers = Runtime.getRuntime().availableProcessors()
     val dispatcher = Executors.newWorkStealingPool(kWorkers).asCoroutineDispatcher()
     val scope = CoroutineScope(dispatcher)
-
 
     // Redis
     val config = Config()
