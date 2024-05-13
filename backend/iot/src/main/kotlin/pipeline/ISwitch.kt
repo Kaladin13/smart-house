@@ -1,4 +1,4 @@
-package org.bakalover.iot
+package org.bakalover.iot.pipeline
 
 import kotlinx.coroutines.channels.Channel
 

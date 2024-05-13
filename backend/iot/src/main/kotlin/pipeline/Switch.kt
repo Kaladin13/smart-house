@@ -1,10 +1,11 @@
-package org.bakalover.iot
+package org.bakalover.iot.pipeline
 
 import kotlinx.coroutines.channels.Channel
 
-class Switch<V>(private val size: Int) : ISwitch<V> {
+class Switch<V>(size: Int) : ISwitch<V> {
     private val channels = List(size) { _ -> Channel<V>(capacity = Channel.UNLIMITED) }
 
+    // Unsafe!!!
     override fun getChannel(id: Int): Channel<V> {
         return channels[id]
     }

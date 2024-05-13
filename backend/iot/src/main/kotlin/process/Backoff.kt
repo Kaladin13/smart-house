@@ -1,4 +1,4 @@
-package org.bakalover.iot
+package org.bakalover.iot.process
 
 import kotlin.math.pow
 import kotlin.random.Random
