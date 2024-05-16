@@ -19,3 +19,9 @@
   нагружает систему.
 + Таким образом весь сервис выступает одним большим Pipe-ом между двумя Redis очередями.
   ![Picture](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/pipeline.svg)
+
+### Метрики
+
+Динамическое изменение RPS
+![PicRPS](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/chartRPS.svg)
+

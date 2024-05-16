@@ -13,7 +13,7 @@ const val CONSUME_QUEUE = "consume_queue"
 const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_HOUSES = 1500
 const val BATCH_SIZE = 256
-const val TASKS = 100000
+const val TASKS = 200000
 
 fun main(): Unit = runBlocking {
 
@@ -24,27 +24,29 @@ fun main(): Unit = runBlocking {
     var startTime: Long = 0
 
     launch {
-        val queue = client.getQueue<String>(CONSUME_QUEUE)
-        startTime = System.currentTimeMillis()
-        (0..<TASKS).forEach { _ ->
-            queue.offer(Json.encodeToString(Request(Random.nextInt(K_HOUSES), "hi", "hjjjjjjjjjjjjjjjjjjji")))
-        }
-    }
+        for (tasksCount in 1..TASKS step TASKS / 100) {
 
-    launch {
+            val queue = client.getQueue<String>(CONSUME_QUEUE)
+            startTime = System.currentTimeMillis()
+            val tasks =
+                List(tasksCount) { _ ->
+                    Json.encodeToString(Request(Random.nextInt(K_HOUSES), "hi", "hjjjjjjjjjjjjjjjjjjji"))
+                }
+            queue.addAll(tasks);
 
-        val queue = client.getQueue<String>(PUBLISH_QUEUE)
-        var count = 0
+            val queueGet = client.getQueue<String>(PUBLISH_QUEUE)
+            var count = 0
 
-        while (true) {
-            if (queue.isNotEmpty()) {
-                val list = queue.poll(BATCH_SIZE)
-                count += list.size
-                if (count >= TASKS) {
-                    break
+            while (true) {
+                if (queueGet.isNotEmpty()) {
+                    val list = queueGet.poll(BATCH_SIZE)
+                    count += list.size
+                    if (count >= tasksCount) {
+                        break
+                    }
                 }
             }
+            println("${tasksCount};${count / ((System.currentTimeMillis() - startTime) / 1000)}")
         }
-        println("rps: ${count / ((System.currentTimeMillis() - startTime) / 1000)} requests")
     }
 }
