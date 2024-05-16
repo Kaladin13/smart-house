@@ -15,6 +15,7 @@
 
     + Каждый слой общается с соседними при помощи Switch-ей, по сути представлящих обёртку над `List<Channel<T>>`
 + Конвеер адаптивный: в случае наличия большого числа запросов, они обрабатываюстя пачками, иначе - таймеры "
-  проталкивают" дальше по нему, "что остаётся".
+  проталкивают" дальше по нему, "что остаётся". Таймеры используют Exponential Backoff: в отсутсвии задач, конвеер
+  сервис не нагружает систему.
 + Таким образом весь сервис выступает одним большим Pipe-ом между двумя Redis очередями.
-  ![Picture](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/iot-diag.svg)
+  ![Picture](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/pipeline.svg)
