@@ -23,5 +23,6 @@
 ### Метрики
 
 Динамическое изменение RPS
+
 ![PicRPS](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/chartRPS.svg)
 
