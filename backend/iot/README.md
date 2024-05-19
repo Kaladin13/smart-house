@@ -1,4 +1,4 @@
-## Внутренний дизайн
+## Дизайн
 
 ***
 
@@ -18,10 +18,29 @@
   проталкивают" дальше по нему, "что остаётся". Таймеры используют Exponential Backoff: в отсутсвии задач, сервис не
   нагружает систему.
 + Таким образом весь сервис выступает одним большим Pipe-ом между двумя Redis очередями.
-  ![Picture](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/pipeline.svg)
+
+### Взамодействие с сервисом
+
+***
+Осуществлятеся на основе двух Redis очередей:
+
++ `request_house` - отправка запроса конкретному дому (`Request`)
++ `response_house` - получение отчёта от дома (`Response`)
+
+Формат сообщений:
+
++ `Request` todo
++ `Response` todo
+
+### Схема
+
+***
+
+![Picture](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/pipeline.svg)
 
 ### Метрики
 
+***
 Динамическое изменение RPS
 
 ![PicRPS](https://raw.githubusercontent.com/Kaladin13/smart-house/iot-dev/backend/iot/chartRPS.svg)
