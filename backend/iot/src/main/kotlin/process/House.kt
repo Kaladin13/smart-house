@@ -23,7 +23,7 @@ class House(private val id: Int) : IIntermediateProcess<Request, Response> {
         }
     }
 
-    suspend fun run() {
+    private suspend fun run() {
         while (true) {
             processRequest()
             sendUpdate()

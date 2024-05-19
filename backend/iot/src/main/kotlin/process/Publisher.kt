@@ -42,7 +42,7 @@ class Publisher(
     }
 
     private fun publishBatch(batch: List<Response>) {
-        publishTo.addAll(batch.map { it -> Json.encodeToString(it) })
+        publishTo.addAll(batch.map { Json.encodeToString(it) })
     }
 
     override suspend fun abort() {
