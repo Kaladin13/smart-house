@@ -6,6 +6,6 @@ enum class ResponseCode(val code: ULong) {
     INVALID_ACTION_FORMAT(102u),
     INVALID_TEMPERATURE(103u),
     INVALID_HUMIDITY(104u),
-    INTERNAL_ERROR(105u),
-    OUT_OF_CHARGE(107u),
+    OUT_OF_CHARGE(105u),
+    INTERNAL_ERROR(106u),
 }

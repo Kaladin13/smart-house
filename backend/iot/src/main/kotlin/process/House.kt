@@ -13,6 +13,7 @@ import org.bakalover.iot.pipeline.ISwitch
 import org.bakalover.iot.things.ClimateControl
 import org.bakalover.iot.things.IThing
 import org.bakalover.iot.things.Light
+import org.bakalover.iot.things.VacuumCleaner
 
 class House(private val id: Int) : IIntermediateProcess<Request, Response> {
     private lateinit var receiveChannel: ReceiveChannel<Request>
@@ -26,13 +27,16 @@ class House(private val id: Int) : IIntermediateProcess<Request, Response> {
 
         val climate = ClimateControl()
         val light = Light()
+        val cleaner = VacuumCleaner()
 
         climate.backgroundActivity(scope)
         light.backgroundActivity(scope)
+        cleaner.backgroundActivity(scope)
 
         things = mapOf(
             Pair("climate", climate),
-            Pair("light", light)
+            Pair("light", light),
+            Pair("cleaner", cleaner)
         )
 
 
