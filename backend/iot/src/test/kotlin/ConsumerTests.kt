@@ -33,7 +33,7 @@ class ConsumerTests {
         runBlocking {
             launch {
                 (0..<tasks).forEach {
-                    from.getChannel(it % 7).send(Request(it % 7, "test", "test"))
+                    from.getChannel(it % 7).send(Request(1, it % 7, "test", "test"))
                 }
             }
 
