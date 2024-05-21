@@ -7,8 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 const val lowerBoundTemperature = 18
 const val upperBoundTemperature = 40
-const val lowerBoundHumidity = 0
-const val upperBoundHumidity = 100
+const val lowerBoundHumidityPercentage = 0
+const val upperBoundHumidityPercentage = 100
 
 class ClimateControl() : IThing {
     private var t = AtomicInteger(20)
@@ -19,7 +19,7 @@ class ClimateControl() : IThing {
         val parts = action.split(" ")
 
         if (parts.size != 3) {
-            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "")
+            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Climate control")
         }
 
         when (parts[0]) {
@@ -34,25 +34,25 @@ class ClimateControl() : IThing {
                             t.set(to)
                             return Pair(ResponseCode.OK, "")
                         } catch (e: NumberFormatException) {
-                            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "")
+                            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Climate control")
                         }
                     }
 
                     "h" -> {
                         try {
                             val to = parts[2].toInt()
-                            if (to > upperBoundHumidity || to < lowerBoundHumidity) {
+                            if (to > upperBoundHumidityPercentage || to < lowerBoundHumidityPercentage) {
                                 return Pair(ResponseCode.INVALID_HUMIDITY, "")
                             }
                             h.set(to)
                             return Pair(ResponseCode.OK, "")
                         } catch (e: NumberFormatException) {
-                            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "")
+                            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Climate control")
                         }
                     }
 
                     else -> {
-                        return Pair(ResponseCode.INVALID_ACTION_FORMAT, "")
+                        return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Climate control")
                     }
                 }
             }

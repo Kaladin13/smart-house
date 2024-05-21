@@ -7,4 +7,5 @@ enum class ResponseCode(val code: ULong) {
     INVALID_TEMPERATURE(103u),
     INVALID_HUMIDITY(104u),
     INTERNAL_ERROR(105u),
+    OUT_OF_CHARGE(107u),
 }

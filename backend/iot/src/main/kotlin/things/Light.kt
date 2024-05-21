@@ -21,7 +21,7 @@ class Light() : IThing {
         val parts = action.split(" ")
 
         if (parts.size != 1) {
-            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "")
+            return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Light")
         }
 
 
@@ -41,7 +41,7 @@ class Light() : IThing {
             }
 
             else -> {
-                return Pair(ResponseCode.INVALID_ACTION_FORMAT, "")
+                return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Light")
             }
         }
     }
