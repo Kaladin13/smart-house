@@ -58,7 +58,7 @@ class ClimateControl() : IThing {
             }
 
             "get" -> {
-                return Pair(ResponseCode.OK, "$t $h")
+                return Pair(ResponseCode.OK, "${t.get()} ${h.get()}")
             }
 
             else -> {
