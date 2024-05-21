@@ -6,8 +6,8 @@ import kotlinx.serialization.json.Json
 import org.redisson.Redisson
 import org.redisson.config.Config
 
-const val PUBLISH_QUEUE = "publish_queue"
-const val CONSUME_QUEUE = "consume_queue"
+const val PUBLISH_QUEUE = "request_house"
+const val CONSUME_QUEUE = "response_house"
 const val REDIS_URL = "redis://127.0.0.1:6379"
 const val K_HOUSES = 1500
 const val BATCH_SIZE = 256

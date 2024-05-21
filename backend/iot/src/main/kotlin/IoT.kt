@@ -17,8 +17,8 @@ import org.redisson.Redisson
 import org.redisson.config.Config
 import java.util.concurrent.Executors
 
-const val PUBLISH_QUEUE = "publish_queue"
-const val CONSUME_QUEUE = "consume_queue"
+const val PUBLISH_QUEUE = "request_house"
+const val CONSUME_QUEUE = "response_house"
 const val REDIS_URL = "redis://127.0.0.1:6379"
 
 //Minimum context switches
