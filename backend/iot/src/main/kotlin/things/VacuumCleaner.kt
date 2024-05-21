@@ -34,7 +34,7 @@ class VacuumCleaner : IThing {
                 if (chargePercentage.get() <= 10) {
                     while (chargePercentage.get() < 100) {
                         chargePercentage.addAndGet(1)
-                        delay(200)
+                        delay(20)
                     }
                 } else {
                     delay(1000 * 5)

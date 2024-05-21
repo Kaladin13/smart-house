@@ -17,8 +17,7 @@ class ClimateControl() : IThing {
 
     override fun doAction(action: String): Pair<ResponseCode, String> {
         val parts = action.split(" ")
-
-        if (parts.size != 3) {
+        if (parts.size != 3 && parts.size != 1) {
             return Pair(ResponseCode.INVALID_ACTION_FORMAT, "Climate control")
         }
 
