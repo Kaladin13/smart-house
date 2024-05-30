@@ -1,0 +1,17 @@
+POST localhost:5454/register
+Content-Type: application/json
+
+{
+  "login": "rusile",
+  "password": "parol"
+}
+
+###
+
+POST localhost:5454/login
+Content-Type: application/json
+
+{
+  "login": "rusile",
+  "password": "parol"
+}

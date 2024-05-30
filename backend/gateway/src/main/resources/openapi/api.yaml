@@ -1,0 +1,244 @@
+openapi: 3.0.3
+info:
+  title: Smart house service
+  version: 1.0.0
+servers:
+  - url: http://localhost:6678/smart-house
+    description: Development server
+tags:
+  - name: smart-house
+paths:
+  /register:
+    post:
+      operationId: createUser
+      tags:
+        - smart-house
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userDto'
+
+      responses:
+        200:
+          description: OK
+
+  /login:
+    get:
+      operationId: loginUser
+      tags:
+        - smart-house
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userDto'
+
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenDto'
+
+
+  /house:
+    post:
+      operationId: createHouse
+      tags:
+        - smart-house
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createHouseRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createHouseResponse'
+    delete:
+      operationId: deleteHouse
+      tags:
+        - smart-house
+      parameters:
+        - in: query
+          required: true
+          name: houseId
+          schema:
+            type: number
+            format: int64
+        - in: query
+          required: true
+          name: userToken
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not found
+    put:
+      operationId: addDevicesInHouse
+      tags:
+        - smart-house
+      parameters:
+        - in: query
+          required: true
+          name: houseId
+          schema:
+            type: number
+            format: int64
+        - in: query
+          required: true
+          name: userToken
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/devices'
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not found
+    get:
+      operationId: getHouseByUserToken
+      tags:
+        - smart-house
+      parameters:
+        - in: query
+          required: true
+          name: userToken
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/houses'
+      responses:
+        200:
+          description: OK
+        404:
+          description: Not found
+
+  /devices:
+    get:
+      operationId: getAllowedDevices
+      tags:
+        - smart-house
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/devices'
+
+  /devices/action/{device-id}:
+    get:
+      operationId: getDeviceActions
+      tags:
+        - smart-house
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deviceActions'
+
+
+components:
+  schemas:
+    tokenDto:
+      type: object
+      properties:
+        token:
+          type: string
+
+    userDto:
+      type: object
+      properties:
+        userLogin:
+          type: string
+        password:
+          type: string
+
+    userCreateResponse:
+      type: object
+      properties:
+        clientId:
+          type: string
+
+    createHouseRequest:
+      type: object
+      properties:
+        userToken:
+          type: string
+        houseName:
+          type: string
+        devicesIds:
+          type: array
+          items:
+            properties:
+              id:
+                type: number
+                format: in64
+
+    createHouseResponse:
+      type: object
+      properties:
+        houseId:
+          type: number
+          format: int64
+
+    devices:
+      type: object
+      properties:
+        devicesIds:
+          type: array
+          items:
+            properties:
+              id:
+                type: number
+                format: in64
+              name:
+                type: string
+
+    deviceActions:
+      type: object
+      properties:
+        actions:
+          type: array
+          items:
+            properties:
+              action:
+                type: string
+
+    house:
+      type: object
+      properties:
+        id:
+          type: number
+          format: in64
+        name:
+          type: string
+
+    houses:
+      type: array
+      items:
+        $ref: '#/components/schemas/house'
+
+
