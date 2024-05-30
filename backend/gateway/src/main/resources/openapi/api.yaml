@@ -214,8 +214,6 @@ components:
               id:
                 type: number
                 format: in64
-              name:
-                type: string
 
     deviceActions:
       type: object
@@ -225,6 +223,8 @@ components:
           items:
             properties:
               action:
+                type: string
+              description:
                 type: string
 
     house:

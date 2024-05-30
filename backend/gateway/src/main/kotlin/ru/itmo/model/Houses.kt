@@ -3,7 +3,6 @@ package ru.itmo.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Action(
-    val action: String,
-    val description: String,
+data class Houses(
+    val houses: List<House>
 )
