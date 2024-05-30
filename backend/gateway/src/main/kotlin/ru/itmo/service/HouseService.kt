@@ -67,12 +67,21 @@ class HouseService(private val dsl: DSLContext) {
 
     fun getHousesByUserToken(userToken: String): List<House> {
         val userId = UUID.fromString(userToken)
+        val houseId: Long = dsl.selectFrom(HOUSE)
+            .where(HOUSE.USER_ID.eq(userId))
+            .fetchOne()?.id ?: -1L
+        val devices = dsl.selectFrom(HOUSE_DEVICES)
+            .where(HOUSE_DEVICES.HOUSE_ID.eq(houseId))
+            .fetch()
+            .toList()
+            .map { it.deviceId!! }
         return dsl.selectFrom(HOUSE)
             .where(HOUSE.USER_ID.eq(userId))
             .fetch().map { record ->
                 House(
                     id = record?.id!!,
-                    name = record.name!!
+                    name = record.name!!,
+                    devices = devices
                 )
             }
     }
