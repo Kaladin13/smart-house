@@ -16,7 +16,7 @@ fun main() {
 
 fun Application.module() {
     startKoin {
-        modules(createKoinModule(this@module))
+        modules(createKoinModule())
     }
 
     configureSerialization()
