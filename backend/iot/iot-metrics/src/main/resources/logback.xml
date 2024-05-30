@@ -1,0 +1,4 @@
+<configuration>
+    <logger name="org.redisson.command.RedisExecutor" level="ERROR"/>
+    <logger name="org.redisson.client.handler.RedisConnection" level="ERROR"/>
+</configuration>
