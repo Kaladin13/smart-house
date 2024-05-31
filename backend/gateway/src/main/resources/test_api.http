@@ -1,0 +1,44 @@
+POST localhost:5454/register
+Content-Type: application/json
+
+{
+  "login": "rusile",
+  "password": "parol"
+}
+
+###
+
+POST localhost:5454/login
+Content-Type: application/json
+
+{
+  "login": "rusile",
+  "password": "parol"
+}
+
+###
+GET localhost:5454/devices
+
+###
+GET localhost:5454/devices/action/2
+
+###
+
+POST localhost:5454/house
+Content-Type: application/json
+
+{
+  "userToken": "190e5b95-3a9c-4dc1-961d-5d4dad866f7a",
+  "houseName": "Durka2",
+  "devicesIds": [
+    1,
+    2,
+    3
+  ]
+}
+
+###
+DELETE localhost:5454/house?userToken=190e5b95-3a9c-4dc1-961d-5d4dad866f7a&houseId=1
+
+###
+GET localhost:5454/house?userToken=190e5b95-3a9c-4dc1-961d-5d4dad866f7a
