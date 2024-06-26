@@ -4,6 +4,9 @@ import kotlinx.serialization.json.Json
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.koin.dsl.module
+import org.redisson.Redisson
+import org.redisson.api.RedissonClient
+import org.redisson.config.Config
 import redis.clients.jedis.Jedis
 import ru.itmo.service.HouseService
 import ru.itmo.service.RedisService
@@ -11,8 +14,9 @@ import ru.itmo.service.UserService
 import java.sql.Connection
 import java.sql.DriverManager
 
-private val REDIS_HOST = "localhost"
+private val REDIS_HOST = "127.0.0.1"
 private val REDIS_PORT = 6379
+const val REDIS_URL = "redis://127.0.0.1:6379"
 
 fun connectToPostgres(): Connection {
     Class.forName("org.postgresql.Driver")
@@ -30,6 +34,9 @@ fun createKoinModule() = module {
     single { UserService(get<DSLContext>()) }
     single { HouseService(get<DSLContext>()) }
     single { Jedis(REDIS_HOST, REDIS_PORT) }
-    single { RedisService(get(), Json { ignoreUnknownKeys = true }) }
+    single { Config().also { it.useSingleServer().setAddress(REDIS_URL) } }
+    single { Redisson.create(get<Config>()) }
+    single { Json { ignoreUnknownKeys = true } }
+    single { RedisService(get<RedissonClient>(), get<Json>()) }
 }
 

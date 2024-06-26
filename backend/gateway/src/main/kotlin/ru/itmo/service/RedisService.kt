@@ -1,37 +1,46 @@
 package ru.itmo.service
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import redis.clients.jedis.Jedis
-import redis.clients.jedis.JedisPubSub
+import org.redisson.api.RQueue
+import org.redisson.api.RedissonClient
 import ru.itmo.model.TaskRequest
 import ru.itmo.model.TaskResponse
 
 class RedisService(
-    private val jedis: Jedis,
+    private val client: RedissonClient,
     private val json: Json
 ) {
 
     fun publishTask(task: TaskRequest) {
-        jedis.publish("tasks", json.encodeToString(task))
+        val publisher: RQueue<String> = client.getQueue("response_house")
+        publisher.offer(json.encodeToString(task))
     }
 
-    suspend fun subscribeToResponse(taskId: Long, onMessageReceived: (TaskResponse) -> Unit) {
-        withContext(Dispatchers.IO) {
-            jedis.subscribe(object : JedisPubSub() {
-                override fun onMessage(channel: String, message: String) {
-                    val taskResponse = json.decodeFromString<TaskResponse>(message)
-                    if (taskResponse.taskId ==
+    suspend fun subscribeToResponse(
+        taskId: Long,
+        onMessageReceived: (TaskResponse) -> Unit,
+    ) {
 
-                        taskId
-                    ) {
+        withContext(Dispatchers.IO) {
+            val queue: RQueue<String> = client.getQueue("request_house")
+            val startTime = System.currentTimeMillis()
+
+            while (isActive && System.currentTimeMillis() - startTime < 3000) {
+                val message = queue.poll()
+                if (message != null) {
+                    val taskResponse = json.decodeFromString<TaskResponse>(message)
+                    if (taskResponse.taskId == taskId) {
                         onMessageReceived(taskResponse)
-                        this.unsubscribe()
+                        return@withContext
                     }
                 }
-            }, "responses")
+                delay(100)
+            }
         }
     }
 }

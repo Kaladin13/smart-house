@@ -10,7 +10,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.java.KoinJavaComponent.inject
-import org.slf4j.LoggerFactory
 import ru.itmo.model.TaskRequest
 import ru.itmo.service.RedisService
 import java.time.Duration
@@ -20,7 +19,6 @@ fun Application.configureSockets() {
     val redisService: RedisService by inject(RedisService::class.java)
     val json: Json by inject(Json::class.java)
     val sessions = ConcurrentHashMap<Long, WebSocketSession>()
-    val logger = LoggerFactory.getLogger("Sockets")
 
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
@@ -30,7 +28,7 @@ fun Application.configureSockets() {
     }
     routing {
         webSocket("/task") {
-            logger.info("get request $incoming")
+            println("get request $incoming")
             try {
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
@@ -39,8 +37,8 @@ fun Application.configureSockets() {
                     sessions[task.taskId] = this
 
                     launch {
-                        redisService.publishTask(task)
 
+                        redisService.publishTask(task)
                         redisService.subscribeToResponse(task.taskId) { response ->
                             val session = sessions[response.taskId]
                             session ?: return@subscribeToResponse
@@ -50,12 +48,12 @@ fun Application.configureSockets() {
                                 sessions.remove(response.taskId)
                             }
                         }
-                    }
+                    }.join()
                 }
             } catch (e: ClosedReceiveChannelException) {
-                println("ClosedReceiveChannelException: ${e.message}")
+                println("ClosedReceiveChannelException: $e")
             } catch (e: Throwable) {
-                println("Throwable: ${e.message}")
+                println("Throwable: $e")
             } finally {
                 val sessionIds = sessions.filterValues { it == this }.keys
                 for (sessionId in sessionIds) {
