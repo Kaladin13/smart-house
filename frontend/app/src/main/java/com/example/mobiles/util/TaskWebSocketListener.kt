@@ -1,7 +1,5 @@
 package com.example.mobiles.util
 import android.util.Log
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
@@ -39,11 +37,4 @@ override fun onFailure(webSocket: WebSocket, t: Throwable, response: okhttp3.Res
 }
 }
 
-fun createWebSocket(url: String, listener: WebSocketListener): WebSocket {
-    val client = OkHttpClient()
-    val request = Request.Builder()
-        .url(url)
-        .build()
-    return client.newWebSocket(request, listener)
-}
 

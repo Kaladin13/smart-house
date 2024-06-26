@@ -395,7 +395,7 @@ fun HumidityToggle(homeId: Long) {
                         taskId = 2L,
                         houseId = homeId,
                         thing = "climate",
-                        action = "set t ${humidity.toInt()}"
+                        action = "set h ${humidity.toInt()}"
                     )
                 }
             }

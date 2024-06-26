@@ -245,6 +245,5 @@ fun sendTaskRequest(
     val taskRequest = TaskRequest(taskId, houseId, thing, action)
     val gson = Gson()
     val json = gson.toJson(taskRequest)
-    Log.d("sendTaskRequest", "inside")
     webSocket.send(json)
 }
