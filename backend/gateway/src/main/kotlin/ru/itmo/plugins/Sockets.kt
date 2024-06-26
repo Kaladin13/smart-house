@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.koin.java.KoinJavaComponent.inject
+import org.slf4j.LoggerFactory
 import ru.itmo.model.TaskRequest
 import ru.itmo.service.RedisService
 import java.time.Duration
@@ -19,6 +20,7 @@ fun Application.configureSockets() {
     val redisService: RedisService by inject(RedisService::class.java)
     val json: Json by inject(Json::class.java)
     val sessions = ConcurrentHashMap<Long, WebSocketSession>()
+    val logger = LoggerFactory.getLogger("Sockets")
 
     install(WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
@@ -28,6 +30,7 @@ fun Application.configureSockets() {
     }
     routing {
         webSocket("/task") {
+            logger.info("get request $incoming")
             try {
                 for (frame in incoming) {
                     frame as? Frame.Text ?: continue
