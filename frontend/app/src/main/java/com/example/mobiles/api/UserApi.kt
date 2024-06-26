@@ -3,18 +3,18 @@ package com.example.mobiles.api
 import com.example.mobiles.model.CreateHouseRequest
 import com.example.mobiles.model.DeviceActionsResponce
 import com.example.mobiles.model.DeviceModel
+import com.example.mobiles.model.GetHousesResponse
 import com.example.mobiles.model.HouseCreationModel
 import com.example.mobiles.model.LoginRequest
 import com.example.mobiles.model.UserModel
-import com.example.mobiles.model.GetHousesResponse
-import retrofit2.http.GET
-import retrofit2.http.Headers
-import retrofit2.http.Path
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UserApi {
@@ -33,7 +33,7 @@ interface UserApi {
 
     @Headers("Content-Type: application/json")
     @DELETE("house")
-    fun deleteHouse(@Query("userToken")userToken: String, @Query("houseId") houseId:Int ): Call<Void>
+    fun deleteHouse(@Query("userToken")userToken: String, @Query("houseId") houseId:Long ): Call<Void>
 
 //   TODO: check what is first
     @Headers("Content-Type: application/json")

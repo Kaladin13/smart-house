@@ -11,10 +11,7 @@ data class UserModel(
     var token: String,
 )
 
-data class LoginRequest(
-    val login: String,
-    val password: String
-)
+
 
 data class ID(
     val id: Int
@@ -32,7 +29,7 @@ data class HouseCreationModel(
 
 
 data class HouseModel(
-    val id: Int,
+    val id: Long,
     val name: String,
     val devices: Array<Int>,
 )
@@ -40,7 +37,6 @@ data class HouseModel(
 data class GetHousesResponse(
     val houses: List<HouseModel>
 )
-
 
 data class DeviceModel(
     val id: Int,
@@ -54,4 +50,21 @@ data class DeviceActionModel(
 
 data class DeviceActionsResponce(
     val actions: List<DeviceActionModel>
+)
+
+data class LoginRequest(
+    val login: String,
+    val password: String
+)
+
+data class DeleteRequest(
+    val token: String,
+    val houseId: Int
+)
+
+data class TaskRequest(
+    val taskId: Long,
+    val houseId: Long,
+    val thing: String,
+    val action: String
 )

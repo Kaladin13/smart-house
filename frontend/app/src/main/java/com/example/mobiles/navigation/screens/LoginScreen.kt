@@ -1,4 +1,4 @@
-package com.example.mobiles
+package com.example.mobiles.navigation.screens
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Button
@@ -30,30 +28,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mobiles.model.UserViewModel
 import com.example.mobiles.ui.theme.Purple40
 import com.example.mobiles.ui.theme.Purple80
 import com.example.mobiles.util.login
-import com.example.mobiles.util.register
-
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegisterScreen(onRegister: (String, String) -> Unit,  onNavigateToHome: () -> Unit, onNavigateToLogin: () -> Unit) {
-    var login by remember { mutableStateOf(TextFieldValue()) }
-    var password by remember { mutableStateOf(TextFieldValue()) }
-    val focusManager = LocalFocusManager.current
+fun LoginScreen(
+    onNavigateToHomeList: () -> Unit,
+    onNavigateToRegister: () -> Unit,
+    userViewModel: UserViewModel = viewModel()
+) {
+    var login by remember { mutableStateOf(TextFieldValue("rusile")) }
+    var password by remember { mutableStateOf(TextFieldValue("parol")) }
+    var errorMessage by remember { mutableStateOf("") }
 
-
-    Surface( color = MaterialTheme.colorScheme.background) {
+    Surface(color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -97,14 +93,6 @@ fun RegisterScreen(onRegister: (String, String) -> Unit,  onNavigateToHome: () -
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Text(
-                text = "${login.text.length} / $maxLength",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                textAlign = TextAlign.End,
-                color = Purple40
-            )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Password",
@@ -140,35 +128,48 @@ fun RegisterScreen(onRegister: (String, String) -> Unit,  onNavigateToHome: () -
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Text(
-                text = "${password.text.length} / $maxLength",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                textAlign = TextAlign.End,
-                color = Purple40
-            )
+
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
             Button(
                 onClick = {
-                    register(login.text, password.text)
-                    onNavigateToHome()
+                    if (login.text.isEmpty() || password.text.isEmpty()) {
+                        errorMessage = "Both login and password fields are required."
+                    } else {
+                        errorMessage = ""
+                        login(login.text, password.text, userViewModel,
+                            onError = { error ->
+                                errorMessage = error
+                            },
+                            onSuccess = {
+                                onNavigateToHomeList()
+                            }
+                        )
+                    }
                 },
                 modifier = Modifier.padding(top = 16.dp),
-                colors = ButtonDefaults.buttonColors( containerColor = Purple40,)
+                colors = ButtonDefaults.buttonColors(containerColor = Purple40)
             ) {
-                Text("Register")
+                Text("Login")
             }
+
             Button(
                 onClick = {
-                    onNavigateToLogin()
+                    Log.d("LoginScreen", "Register button clicked")
+                    onNavigateToRegister()
                 },
                 modifier = Modifier.padding(top = 16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor= Color.Transparent, contentColor = Purple40,)
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent, contentColor = Purple40)
             ) {
-                Text("Return to login")
+                Text("I don't have an account")
             }
         }
-
     }
 }
+
